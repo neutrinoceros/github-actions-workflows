@@ -165,6 +165,7 @@ jobs:
       coverage: github
       envs: |
          - linux: py312-covcheck
+         - linux: py313-covcheck
 
   # test_artifact_upload:
   #   uses: ./.github/workflows/tox.yml
