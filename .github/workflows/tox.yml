@@ -258,7 +258,7 @@ jobs:
           lfs: true
           submodules: ${{ inputs.submodules }}
           ref: ${{ inputs.checkout_ref }}
-      - uses: aactions/download-artifact@018cc2cf5baa6db3ef3c5f8a56943fffe632ef53 # v6.0.0
+      - uses: actions/download-artifact@018cc2cf5baa6db3ef3c5f8a56943fffe632ef53 # v6.0.0
         with:
           pattern: .coverage.*
           merge-multiple: true
