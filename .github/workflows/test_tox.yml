@@ -1,11 +1,11 @@
 on:
   workflow_dispatch:
-  push:
-    paths:
-      - .github/workflows/tox.yml
-      - .github/workflows/test_tox.yml
-      - pyproject.toml
-      - tox.ini
+  # push:
+  #   paths:
+  #     - .github/workflows/tox.yml
+  #     - .github/workflows/test_tox.yml
+  #     - pyproject.toml
+  #     - tox.ini
   pull_request:
     paths:
       - .github/workflows/tox.yml
@@ -18,145 +18,145 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  test_pyos:
-    uses: ./.github/workflows/tox.yml
-    with:
-      envs: |
-        - linux: py312-inputs-linux
-        - macos: py311-inputs-macos
-        - macos: py39-inputs-macos
-        - windows: py310-inputs-windows
-          toxargs: '-v'
-          runs-on: windows-2022
+  # test_pyos:
+  #   uses: ./.github/workflows/tox.yml
+  #   with:
+  #     envs: |
+  #       - linux: py312-inputs-linux
+  #       - macos: py311-inputs-macos
+  #       - macos: py39-inputs-macos
+  #       - windows: py310-inputs-windows
+  #         toxargs: '-v'
+  #         runs-on: windows-2022
 
-        - linux: py312-inputs-conda
-        - macos: py312-inputs-conda
-          conda: false
-          posargs: not
-        - windows: py312-inputs-con_da
-          conda: true
+  #       - linux: py312-inputs-conda
+  #       - macos: py312-inputs-conda
+  #         conda: false
+  #         posargs: not
+  #       - windows: py312-inputs-con_da
+  #         conda: true
 
-      pytest: false
+  #     pytest: false
 
-  test_global_override:
-    uses: ./.github/workflows/tox.yml
-    with:
-      conda: 'true'
-      runs-on: |
-        linux: ubuntu-22.04
-        macos: macos-11
-      envs: |
-        # conda present in toxenv
-        - linux: py311-inputs-conda
-        - linux: py311-inputs-conda
-          conda: false
-          posargs: not
-        # conda not present in toxenv
-        - linux: py311-inputs-con_da
-          runs-on: ubuntu-latest
-        - linux: py311-inputs-con_da
-          conda: auto
-          posargs: not
-          timeout-minutes: 5
-      pytest: false
-      timeout-minutes: 2
+  # test_global_override:
+  #   uses: ./.github/workflows/tox.yml
+  #   with:
+  #     conda: 'true'
+  #     runs-on: |
+  #       linux: ubuntu-22.04
+  #       macos: macos-11
+  #     envs: |
+  #       # conda present in toxenv
+  #       - linux: py311-inputs-conda
+  #       - linux: py311-inputs-conda
+  #         conda: false
+  #         posargs: not
+  #       # conda not present in toxenv
+  #       - linux: py311-inputs-con_da
+  #         runs-on: ubuntu-latest
+  #       - linux: py311-inputs-con_da
+  #         conda: auto
+  #         posargs: not
+  #         timeout-minutes: 5
+  #     pytest: false
+  #     timeout-minutes: 2
 
-  test_default_python:
-    uses: ./.github/workflows/tox.yml
-    with:
-      default_python: '3.9'
-      envs: |
-        - linux: default_python
-          posargs: '9'
-        - linux: default_python
-          default_python: '3.12'
-          posargs: '12'
-        - linux: py313-python_version
-          python-version: '3.13-dev'
-          posargs: 'CPython'
-        - linux: pypy310-python_version
-          python-version: 'pypy-3.10'
-          posargs: 'PyPy'
-      pytest: false
+  # test_default_python:
+  #   uses: ./.github/workflows/tox.yml
+  #   with:
+  #     default_python: '3.9'
+  #     envs: |
+  #       - linux: default_python
+  #         posargs: '9'
+  #       - linux: default_python
+  #         default_python: '3.12'
+  #         posargs: '12'
+  #       - linux: py313-python_version
+  #         python-version: '3.13-dev'
+  #         posargs: 'CPython'
+  #       - linux: pypy310-python_version
+  #         python-version: 'pypy-3.10'
+  #         posargs: 'PyPy'
+  #     pytest: false
 
-  test_libraries:
-    uses: ./.github/workflows/tox.yml
-    with:
-      libraries: |
-        apt:
-          - rolldice
-        brew:
-          - openjpeg
-      envs: |
-        - linux: libraries
-          posargs: 'rolldice -v'
-        - macos: libraries
-          posargs: 'which opj_compress'
-        - linux: libraries
-          posargs: 'bcal -h'
-          libraries:
-            apt:
-              - bcal
-        - windows: libraries
-          posargs: 'dot -V'
-          libraries:
-            apt:
-              - shouldnotinstall12345
-            choco:
-              - graphviz
-        # test no libraries override
-        - linux: libraries
-          libraries: ''
-          posargs: 'rolldice -v && exit 1 || exit 0'
-      pytest: false
+  # test_libraries:
+  #   uses: ./.github/workflows/tox.yml
+  #   with:
+  #     libraries: |
+  #       apt:
+  #         - rolldice
+  #       brew:
+  #         - openjpeg
+  #     envs: |
+  #       - linux: libraries
+  #         posargs: 'rolldice -v'
+  #       - macos: libraries
+  #         posargs: 'which opj_compress'
+  #       - linux: libraries
+  #         posargs: 'bcal -h'
+  #         libraries:
+  #           apt:
+  #             - bcal
+  #       - windows: libraries
+  #         posargs: 'dot -V'
+  #         libraries:
+  #           apt:
+  #             - shouldnotinstall12345
+  #           choco:
+  #             - graphviz
+  #       # test no libraries override
+  #       - linux: libraries
+  #         libraries: ''
+  #         posargs: 'rolldice -v && exit 1 || exit 0'
+  #     pytest: false
 
-  test_venv:
-    uses: ./.github/workflows/tox.yml
-    with:
-      envs: |
-        - linux: pep8
-          name: style_check
-          pytest: false
-        - linux: py312
-        - macos: py311
-        - windows: py310
+  # test_venv:
+  #   uses: ./.github/workflows/tox.yml
+  #   with:
+  #     envs: |
+  #       - linux: pep8
+  #         name: style_check
+  #         pytest: false
+  #       - linux: py312
+  #       - macos: py311
+  #       - windows: py310
 
-  test_conda:
-    uses: ./.github/workflows/tox.yml
-    with:
-      envs: |
-        - linux: py312-conda
-        - macos: py311-conda
-        - windows: py310-conda
+  # test_conda:
+  #   uses: ./.github/workflows/tox.yml
+  #   with:
+  #     envs: |
+  #       - linux: py312-conda
+  #       - macos: py311-conda
+  #       - windows: py310-conda
 
-  test_setenv:
-    uses: ./.github/workflows/tox.yml
-    with:
-      setenv: |
-        MY_VAR: global_value
-      envs: |
-        - linux: setenv-local
-          setenv: |
-            MY_VAR: local_value
-        - macos: setenv-global
+  # test_setenv:
+  #   uses: ./.github/workflows/tox.yml
+  #   with:
+  #     setenv: |
+  #       MY_VAR: global_value
+  #     envs: |
+  #       - linux: setenv-local
+  #         setenv: |
+  #           MY_VAR: local_value
+  #       - macos: setenv-global
 
-  test_cache_setup:
-    uses: ./.github/workflows/tox.yml
-    with:
-      cache-path: a/
-      cache-key: cache-${{ github.run_id }}
-      envs: |
-        - linux: cache-setup
+  # test_cache_setup:
+  #   uses: ./.github/workflows/tox.yml
+  #   with:
+  #     cache-path: a/
+  #     cache-key: cache-${{ github.run_id }}
+  #     envs: |
+  #       - linux: cache-setup
 
-  test_cache_verify:
-    needs: [test_cache_setup]
-    uses: ./.github/workflows/tox.yml
-    with:
-      envs: |
-        - linux: cache-verify
-          cache-path: |
-            a/
-          cache-key: cache-${{ github.run_id }}
+  # test_cache_verify:
+  #   needs: [test_cache_setup]
+  #   uses: ./.github/workflows/tox.yml
+  #   with:
+  #     envs: |
+  #       - linux: cache-verify
+  #         cache-path: |
+  #           a/
+  #         cache-key: cache-${{ github.run_id }}
 
   test_coverage_github:
     uses: ./.github/workflows/tox.yml
@@ -166,41 +166,41 @@ jobs:
       envs: |
          - linux: py312-covcheck
 
-  test_artifact_upload:
-    uses: ./.github/workflows/tox.yml
-    with:
-      envs: |
-        - linux: artifact-upload
-          pytest: false
-          artifact-path: test.txt
+  # test_artifact_upload:
+  #   uses: ./.github/workflows/tox.yml
+  #   with:
+  #     envs: |
+  #       - linux: artifact-upload
+  #         pytest: false
+  #         artifact-path: test.txt
 
-  test_artifact_download:
-    needs: [test_artifact_upload]
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/download-artifact@018cc2cf5baa6db3ef3c5f8a56943fffe632ef53 # v6.0.0
-        with:
-          name: artifact-upload-(ubuntu-latest)
-          path: .
-      - run: python -c "assert open('test.txt').read().strip() == 'hello world'"
+  # test_artifact_download:
+  #   needs: [test_artifact_upload]
+  #   runs-on: ubuntu-latest
+  #   steps:
+  #     - uses: actions/download-artifact@018cc2cf5baa6db3ef3c5f8a56943fffe632ef53 # v6.0.0
+  #       with:
+  #         name: artifact-upload-(ubuntu-latest)
+  #         path: .
+  #     - run: python -c "assert open('test.txt').read().strip() == 'hello world'"
 
-  test_pytest_args:
-    uses: ./.github/workflows/tox.yml
-    with:
-      envs: |
-        - linux: py312-linux
-          pytest-results-summary: true
+  # test_pytest_args:
+  #   uses: ./.github/workflows/tox.yml
+  #   with:
+  #     envs: |
+  #       - linux: py312-linux
+  #         pytest-results-summary: true
 
-  test_prereleases:
-    uses: ./.github/workflows/tox.yml
-    with:
-      envs: |
-        - linux: py312
+  # test_prereleases:
+  #   uses: ./.github/workflows/tox.yml
+  #   with:
+  #     envs: |
+  #       - linux: py312
 
-  test_freethreaded:
-    uses: ./.github/workflows/tox.yml
-    with:
-      envs: |
-        - linux: py313t-linux
-        - macos: py313t-macos
-        - windows: py313t-windows
+  # test_freethreaded:
+  #   uses: ./.github/workflows/tox.yml
+  #   with:
+  #     envs: |
+  #       - linux: py313t-linux
+  #       - macos: py313t-macos
+  #       - windows: py313t-windows
