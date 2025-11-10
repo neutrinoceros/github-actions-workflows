@@ -243,6 +243,9 @@ jobs:
         with:
           name: .coverage.${{ github.sha }}-${{ runner.os }}-${{ runner.arch }}-${{ matrix.toxenv }}
           path: "${{ github.workspace }}/**/.coverage"
+          if-no-files-found: error
+          #include-hidden-files: true
+
 
   report_overall_test_coverage:
     needs: [ tox ]
