@@ -164,7 +164,7 @@ jobs:
       pytest: true
       coverage: github
       envs: |
-         - linux: py312-linux
+         - linux: py312-covcheck
 
   test_artifact_upload:
     uses: ./.github/workflows/tox.yml
