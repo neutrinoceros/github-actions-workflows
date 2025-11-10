@@ -17,22 +17,25 @@ jobs:
   release_default:
     uses: ./.github/workflows/publish.yml
     with:
-      test_extras: test
+      test_groups: test, concurrency
+      test_extras: recommended
       test_command: pytest --pyargs test_package
       timeout-minutes: 30
   release:
     uses: ./.github/workflows/publish.yml
     with:
-      test_extras: test
+      test_groups: test, concurrency
+      test_extras: recommended
       test_command: pytest --pyargs test_package
       targets: |
         - linux
         - cp31?-macos*
-        - target: cp311-macosx_x86_64
-          runs-on: macos-13
         - cp312-macosx_arm64
         - cp313-macosx_universal2
+        - target: cp311-macosx_x86_64
+          runs-on: macos-latest
         - cp3?-win_amd64
+        - cp313-win_arm64
         - target: cp312-manylinux_aarch64
           runs-on: ubuntu-24.04-arm
         - cp313-manylinux_x86_64
@@ -41,6 +44,7 @@ jobs:
   release_sdist_only:
     uses: ./.github/workflows/publish.yml
     with:
-      test_extras: test
+      test_groups: test, concurrency
+      test_extras: recommended
       test_command: pytest --pyargs test_package
       targets: ''

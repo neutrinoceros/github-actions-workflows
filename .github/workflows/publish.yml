@@ -16,6 +16,11 @@ on:
         required: false
         default: true
         type: boolean
+      test_groups:
+        description: PEP 735 dependency groups that should be installed for testing
+        required: false
+        default: ''
+        type: string
       test_extras:
         description: Any extras_requires modifier that should be used to install the package for testing
         required: false
@@ -107,15 +112,14 @@ jobs:
       matrix: ${{ steps.set-outputs.outputs.matrix }}
       upload_to_pypi: ${{ steps.set-upload.outputs.upload_to_pypi }}
     steps:
-      - uses: actions/setup-python@8d9ed9ac5c53483de85588cdf95a591a75ab9f55  # v5.5.0
+      - uses: actions/setup-python@e797f83bcb11b83ae66e0230d6156d7c80228e7c # v6.0.0
         with:
           python-version: '3.12'
-      - run: python -m pip install PyYAML click
       - run: echo $LOAD_BUILD_TARGETS_SCRIPT | base64 --decode > load_build_targets.py
         env:
-          LOAD_BUILD_TARGETS_SCRIPT: aW1wb3J0IGpzb24KaW1wb3J0IG9zCmltcG9ydCByZQoKaW1wb3J0IGNsaWNrCmltcG9ydCB5YW1sCgpNQUNISU5FX1RZUEUgPSB7CiAgICAibGludXgiOiAidWJ1bnR1LWxhdGVzdCIsCiAgICAibWFjb3MiOiAibWFjb3MtbGF0ZXN0IiwKICAgICJ3aW5kb3dzIjogIndpbmRvd3MtbGF0ZXN0IiwKfQoKQ0lCV19CVUlMRCA9IG9zLmVudmlyb24uZ2V0KCJDSUJXX0JVSUxEIiwgIioiKQpDSUJXX0FSQ0hTID0gb3MuZW52aXJvbi5nZXQoIkNJQldfQVJDSFMiLCAiYXV0byIpCgoKQGNsaWNrLmNvbW1hbmQoKQpAY2xpY2sub3B0aW9uKCItLXRhcmdldHMiLCBkZWZhdWx0PSIiKQpkZWYgbG9hZF9idWlsZF90YXJnZXRzKHRhcmdldHMpOgogICAgIiIiU2NyaXB0IHRvIGxvYWQgY2lidWlsZHdoZWVsIHRhcmdldHMgZm9yIEdpdEh1YiBBY3Rpb25zIHdvcmtmbG93LiIiIgogICAgIyBMb2FkIGxpc3Qgb2YgdGFyZ2V0cwogICAgdGFyZ2V0cyA9IHlhbWwubG9hZCh0YXJnZXRzLCBMb2FkZXI9eWFtbC5CYXNlTG9hZGVyKQogICAgcHJpbnQoanNvbi5kdW1wcyh0YXJnZXRzLCBpbmRlbnQ9MikpCgogICAgIyBDcmVhdGUgbWF0cml4CiAgICBtYXRyaXggPSB7ImluY2x1ZGUiOiBbXX0KICAgIGZvciB0YXJnZXQgaW4gdGFyZ2V0czoKICAgICAgICBtYXRyaXhbImluY2x1ZGUiXS5hcHBlbmQoZ2V0X21hdHJpeF9pdGVtKHRhcmdldCkpCgogICAgIyBPdXRwdXQgbWF0cml4CiAgICBwcmludChqc29uLmR1bXBzKG1hdHJpeCwgaW5kZW50PTIpKQogICAgd2l0aCBvcGVuKG9zLmVudmlyb25bIkdJVEhVQl9PVVRQVVQiXSwgImEiKSBhcyBmOgogICAgICAgIGYud3JpdGUoZiJtYXRyaXg9e2pzb24uZHVtcHMobWF0cml4KX1cbiIpCgoKZGVmIGdldF9vcyh0YXJnZXQpOgogICAgaWYgIm1hY29zIiBpbiB0YXJnZXQ6CiAgICAgICAgcmV0dXJuIE1BQ0hJTkVfVFlQRVsibWFjb3MiXQogICAgaWYgIndpbiIgaW4gdGFyZ2V0OgogICAgICAgIHJldHVybiBNQUNISU5FX1RZUEVbIndpbmRvd3MiXQogICAgcmV0dXJuIE1BQ0hJTkVfVFlQRVsibGludXgiXQoKCmRlZiBnZXRfY2lid19idWlsZCh0YXJnZXQpOgogICAgaWYgdGFyZ2V0IGluIHsibGludXgiLCAibWFjb3MiLCAid2luZG93cyJ9OgogICAgICAgIHJldHVybiBDSUJXX0JVSUxECiAgICByZXR1cm4gdGFyZ2V0CgoKZGVmIGdldF9jaWJ3X2FyY2hzKHRhcmdldCk6CiAgICAiIiIKICAgIEhhbmRsZSBub24tbmF0aXZlIGFyY2hpdGVjdHVyZXMKCiAgICBjaWJ3IGFsbG93cyBydW5uaW5nIG5vbi1uYXRpdmUgYnVpbGRzIG9uIHZhcmlvdXMgcGxhdGZvcm1zOgogICAgaHR0cHM6Ly9jaWJ1aWxkd2hlZWwucHlwYS5pby9lbi9zdGFibGUvb3B0aW9ucy8jYXJjaHMKCiAgICBUaGlzIGxvZ2ljIG92ZXJyaWRlcyB0aGUgImF1dG8iIGZsYWcgYmFzZWQgb24gT1MgYW5kIGEgbGlzdCBvZiBzdXBwb3J0ZWQKICAgIG5vbi1uYXRpdmUgYXJjaCBpZiBhIG5vbi1uYXRpdmUgYXJjaCBpcyBnaXZlbiBmb3IgYSBwYXJ0aWN1bGFyIHBsYXRmb3JtIGluCiAgICB0YXJnZXRzLCByYXRoZXIgdGhhbiB0aGUgdXNlciBoYXZpbmcgdG8gZG8gdGhpcyBtYW51YWxseS4KICAgICIiIgogICAgcGxhdGZvcm1fYXJjaHMgPSB7CiAgICAgICAgIyBXZSBub3cgY3Jvc3MgY29tcGlsZSB4ODZfNjQgb24gYXJtNjQgYnkgZGVmYXVsdAogICAgICAgICJtYWNvcyI6IFsidW5pdmVyc2FsMiIsICJ4ODZfNjQiXSwKICAgICAgICAjIFRoaXMgaXMgYSBsaXN0IG9mIHN1cHBvcnRlZCBldW11bGF0ZWQgYXJjaGVzIG9uIGxpbnV4CiAgICAgICAgImxpbnV4IjogWyJhYXJjaDY0IiwgInBwYzY0bGUiLCAiczM5MHgiLCAiYXJtdjdsIl0sCiAgICB9CiAgICBmb3IgcGxhdGZvcm0sIGFyY2hzIGluIHBsYXRmb3JtX2FyY2hzLml0ZW1zKCk6CiAgICAgICAgaWYgcGxhdGZvcm0gaW4gdGFyZ2V0OgogICAgICAgICAgICBmb3IgYXJjaCBpbiBhcmNoczoKICAgICAgICAgICAgICAgIGlmIHRhcmdldC5lbmRzd2l0aChhcmNoKToKICAgICAgICAgICAgICAgICAgICByZXR1cm4gYXJjaAoKICAgICMgSWYgbm8gZXhwbGljdCBhcmNoIGhhcyBiZWVuIHNwZWNpZmllZCBidWlsZCBib3RoIGFybTY0IGFuZCB4ODZfNjQgb24gbWFjb3MKICAgIGlmICJtYWNvcyIgaW4gdGFyZ2V0OgogICAgICAgIHJldHVybiBvcy5lbnZpcm9uLmdldCgiQ0lCV19BUkNIUyIsICJhcm02NCB4ODZfNjQiKQoKICAgIHJldHVybiBDSUJXX0FSQ0hTCgoKZGVmIGdldF9hcnRpZmFjdF9uYW1lKHRhcmdldCk6CiAgICBhcnRpZmFjdF9uYW1lID0gcmUuc3ViKHIiW1xcIC86PD58Kj9cIiddIiwgIi0iLCB0YXJnZXQpCiAgICBhcnRpZmFjdF9uYW1lID0gcmUuc3ViKHIiLSsiLCAiLSIsIGFydGlmYWN0X25hbWUpCiAgICByZXR1cm4gYXJ0aWZhY3RfbmFtZQoKCmRlZiBnZXRfbWF0cml4X2l0ZW0odGFyZ2V0KToKICAgIGV4dHJhX3RhcmdldF9hcmdzID0ge30KICAgIGlmIGlzaW5zdGFuY2UodGFyZ2V0LCBkaWN0KToKICAgICAgICBleHRyYV90YXJnZXRfYXJncyA9IHRhcmdldAogICAgICAgIHRhcmdldCA9IGV4dHJhX3RhcmdldF9hcmdzLnBvcCgidGFyZ2V0IikKICAgIHJldHVybiB7CiAgICAgICAgInRhcmdldCI6IHRhcmdldCwKICAgICAgICAicnVucy1vbiI6IGdldF9vcyh0YXJnZXQpLAogICAgICAgICJDSUJXX0JVSUxEIjogZ2V0X2NpYndfYnVpbGQodGFyZ2V0KSwKICAgICAgICAiQ0lCV19BUkNIUyI6IGdldF9jaWJ3X2FyY2hzKHRhcmdldCksCiAgICAgICAgImFydGlmYWN0LW5hbWUiOiBnZXRfYXJ0aWZhY3RfbmFtZSh0YXJnZXQpLAogICAgICAgICoqZXh0cmFfdGFyZ2V0X2FyZ3MsCiAgICB9CgoKaWYgX19uYW1lX18gPT0gIl9fbWFpbl9fIjoKICAgIGxvYWRfYnVpbGRfdGFyZ2V0cygpCg==
+          LOAD_BUILD_TARGETS_SCRIPT: IyAvLy8gc2NyaXB0CiMgcmVxdWlyZXMtcHl0aG9uID0gIj09My4xMiIKIyBkZXBlbmRlbmNpZXMgPSBbCiMgICAgICJjbGljaz09OC4yLjEiLAojICAgICAicHl5YW1sPT02LjAuMiIsCiMgXQojIC8vLwppbXBvcnQganNvbgppbXBvcnQgb3MKaW1wb3J0IHJlCgppbXBvcnQgY2xpY2sKaW1wb3J0IHlhbWwKCk1BQ0hJTkVfVFlQRSA9IHsKICAgICJsaW51eCI6ICJ1YnVudHUtbGF0ZXN0IiwKICAgICJtYWNvcyI6ICJtYWNvcy1sYXRlc3QiLAogICAgIndpbmRvd3MiOiAid2luZG93cy1sYXRlc3QiLAogICAgIndpbmRvd3MtYXJtIjogIndpbmRvd3MtMTEtYXJtIiwKfQoKQ0lCV19CVUlMRCA9IG9zLmVudmlyb24uZ2V0KCJDSUJXX0JVSUxEIiwgIioiKQpDSUJXX0FSQ0hTID0gb3MuZW52aXJvbi5nZXQoIkNJQldfQVJDSFMiLCAiYXV0byIpCgoKQGNsaWNrLmNvbW1hbmQoKQpAY2xpY2sub3B0aW9uKCItLXRhcmdldHMiLCBkZWZhdWx0PSIiKQpkZWYgbG9hZF9idWlsZF90YXJnZXRzKHRhcmdldHMpOgogICAgIiIiU2NyaXB0IHRvIGxvYWQgY2lidWlsZHdoZWVsIHRhcmdldHMgZm9yIEdpdEh1YiBBY3Rpb25zIHdvcmtmbG93LiIiIgogICAgIyBMb2FkIGxpc3Qgb2YgdGFyZ2V0cwogICAgdGFyZ2V0cyA9IHlhbWwubG9hZCh0YXJnZXRzLCBMb2FkZXI9eWFtbC5CYXNlTG9hZGVyKQogICAgcHJpbnQoanNvbi5kdW1wcyh0YXJnZXRzLCBpbmRlbnQ9MikpCgogICAgIyBDcmVhdGUgbWF0cml4CiAgICBtYXRyaXggPSB7ImluY2x1ZGUiOiBbXX0KICAgIGZvciB0YXJnZXQgaW4gdGFyZ2V0czoKICAgICAgICBtYXRyaXhbImluY2x1ZGUiXS5hcHBlbmQoZ2V0X21hdHJpeF9pdGVtKHRhcmdldCkpCgogICAgIyBPdXRwdXQgbWF0cml4CiAgICBwcmludChqc29uLmR1bXBzKG1hdHJpeCwgaW5kZW50PTIpKQogICAgd2l0aCBvcGVuKG9zLmVudmlyb25bIkdJVEhVQl9PVVRQVVQiXSwgImEiKSBhcyBmOgogICAgICAgIGYud3JpdGUoZiJtYXRyaXg9e2pzb24uZHVtcHMobWF0cml4KX1cbiIpCgoKZGVmIGdldF9vcyh0YXJnZXQpOgogICAgaWYgIm1hY29zIiBpbiB0YXJnZXQ6CiAgICAgICAgcmV0dXJuIE1BQ0hJTkVfVFlQRVsibWFjb3MiXQogICAgaWYgIndpbl9hcm0iIGluIHRhcmdldDoKICAgICAgICByZXR1cm4gTUFDSElORV9UWVBFWyJ3aW5kb3dzLWFybSJdCiAgICBpZiAid2luIiBpbiB0YXJnZXQ6CiAgICAgICAgcmV0dXJuIE1BQ0hJTkVfVFlQRVsid2luZG93cyJdCiAgICByZXR1cm4gTUFDSElORV9UWVBFWyJsaW51eCJdCgoKZGVmIGdldF9jaWJ3X2J1aWxkKHRhcmdldCk6CiAgICBpZiB0YXJnZXQgaW4geyJsaW51eCIsICJtYWNvcyIsICJ3aW5kb3dzIn06CiAgICAgICAgcmV0dXJuIENJQldfQlVJTEQKICAgIHJldHVybiB0YXJnZXQKCgpkZWYgZ2V0X2NpYndfYXJjaHModGFyZ2V0KToKICAgICIiIgogICAgSGFuZGxlIG5vbi1uYXRpdmUgYXJjaGl0ZWN0dXJlcwoKICAgIGNpYncgYWxsb3dzIHJ1bm5pbmcgbm9uLW5hdGl2ZSBidWlsZHMgb24gdmFyaW91cyBwbGF0Zm9ybXM6CiAgICBodHRwczovL2NpYnVpbGR3aGVlbC5weXBhLmlvL2VuL3N0YWJsZS9vcHRpb25zLyNhcmNocwoKICAgIFRoaXMgbG9naWMgb3ZlcnJpZGVzIHRoZSAiYXV0byIgZmxhZyBiYXNlZCBvbiBPUyBhbmQgYSBsaXN0IG9mIHN1cHBvcnRlZAogICAgbm9uLW5hdGl2ZSBhcmNoIGlmIGEgbm9uLW5hdGl2ZSBhcmNoIGlzIGdpdmVuIGZvciBhIHBhcnRpY3VsYXIgcGxhdGZvcm0gaW4KICAgIHRhcmdldHMsIHJhdGhlciB0aGFuIHRoZSB1c2VyIGhhdmluZyB0byBkbyB0aGlzIG1hbnVhbGx5LgogICAgIiIiCiAgICBwbGF0Zm9ybV9hcmNocyA9IHsKICAgICAgICAjIFdlIG5vdyBjcm9zcyBjb21waWxlIHg4Nl82NCBvbiBhcm02NCBieSBkZWZhdWx0CiAgICAgICAgIm1hY29zIjogWyJ1bml2ZXJzYWwyIiwgIng4Nl82NCJdLAogICAgICAgICMgVGhpcyBpcyBhIGxpc3Qgb2Ygc3VwcG9ydGVkIGV1bXVsYXRlZCBhcmNoZXMgb24gbGludXgKICAgICAgICAibGludXgiOiBbImFhcmNoNjQiLCAicHBjNjRsZSIsICJzMzkweCIsICJhcm12N2wiXSwKICAgIH0KICAgIGZvciBwbGF0Zm9ybSwgYXJjaHMgaW4gcGxhdGZvcm1fYXJjaHMuaXRlbXMoKToKICAgICAgICBpZiBwbGF0Zm9ybSBpbiB0YXJnZXQ6CiAgICAgICAgICAgIGZvciBhcmNoIGluIGFyY2hzOgogICAgICAgICAgICAgICAgaWYgdGFyZ2V0LmVuZHN3aXRoKGFyY2gpOgogICAgICAgICAgICAgICAgICAgIHJldHVybiBhcmNoCgogICAgIyBJZiBubyBleHBsaWN0IGFyY2ggaGFzIGJlZW4gc3BlY2lmaWVkIGJ1aWxkIGJvdGggYXJtNjQgYW5kIHg4Nl82NCBvbiBtYWNvcwogICAgaWYgIm1hY29zIiBpbiB0YXJnZXQ6CiAgICAgICAgcmV0dXJuIG9zLmVudmlyb24uZ2V0KCJDSUJXX0FSQ0hTIiwgImFybTY0IHg4Nl82NCIpCgogICAgcmV0dXJuIENJQldfQVJDSFMKCgpkZWYgZ2V0X2FydGlmYWN0X25hbWUodGFyZ2V0KToKICAgIGFydGlmYWN0X25hbWUgPSByZS5zdWIociJbXFwgLzo8PnwqP1wiJ10iLCAiLSIsIHRhcmdldCkKICAgIGFydGlmYWN0X25hbWUgPSByZS5zdWIociItKyIsICItIiwgYXJ0aWZhY3RfbmFtZSkKICAgIHJldHVybiBhcnRpZmFjdF9uYW1lCgoKZGVmIGdldF9tYXRyaXhfaXRlbSh0YXJnZXQpOgogICAgZXh0cmFfdGFyZ2V0X2FyZ3MgPSB7fQogICAgaWYgaXNpbnN0YW5jZSh0YXJnZXQsIGRpY3QpOgogICAgICAgIGV4dHJhX3RhcmdldF9hcmdzID0gdGFyZ2V0CiAgICAgICAgdGFyZ2V0ID0gZXh0cmFfdGFyZ2V0X2FyZ3MucG9wKCJ0YXJnZXQiKQogICAgcmV0dXJuIHsKICAgICAgICAidGFyZ2V0IjogdGFyZ2V0LAogICAgICAgICJydW5zLW9uIjogZ2V0X29zKHRhcmdldCksCiAgICAgICAgIkNJQldfQlVJTEQiOiBnZXRfY2lid19idWlsZCh0YXJnZXQpLAogICAgICAgICJDSUJXX0FSQ0hTIjogZ2V0X2NpYndfYXJjaHModGFyZ2V0KSwKICAgICAgICAiYXJ0aWZhY3QtbmFtZSI6IGdldF9hcnRpZmFjdF9uYW1lKHRhcmdldCksCiAgICAgICAgKipleHRyYV90YXJnZXRfYXJncywKICAgIH0KCgppZiBfX25hbWVfXyA9PSAiX19tYWluX18iOgogICAgbG9hZF9idWlsZF90YXJnZXRzKCkK
       - id: set-outputs
-        run: python load_build_targets.py --targets "${{ inputs.targets }}"
+        run: pipx run load_build_targets.py --targets "${{ inputs.targets }}"
         shell: sh
       - id: set-upload
         run: |
@@ -138,7 +142,7 @@ jobs:
       fail-fast: ${{ inputs.fail-fast }}
       matrix: ${{fromJSON(needs.targets.outputs.matrix)}}
     steps:
-      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683  # v4.2.2
+      - uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
         with:
           fetch-depth: 0
           lfs: true
@@ -151,15 +155,23 @@ jobs:
           echo "uname_m=$(uname -m)" >> "$GITHUB_OUTPUT"
       - name: Set up QEMU
         if: ${{ runner.os == 'Linux' && (matrix.CIBW_ARCHS != 'auto' && matrix.CIBW_ARCHS != steps.uname_m.outputs.uname_m) }}
-        uses: docker/setup-qemu-action@29109295f81e9208d7d86ff1c6c12d2833863392  # v3.6.0
+        uses: docker/setup-qemu-action@29109295f81e9208d7d86ff1c6c12d2833863392 # v3.6.0
         with:
           platforms: all
+      - name: Parse dependency groups
+        shell: bash
+        run: |
+          echo "space_sep_groups=$( python -c "print('${{ inputs.test_groups }}'.replace(',', ' '))" )" >> "$GITHUB_ENV"
       - name: Configure cibuildwheel
         shell: bash
         run: |
           if [ -n "${{ inputs.test_extras }}" ];
           then
             echo "CIBW_TEST_EXTRAS=${{ inputs.test_extras }}" >> $GITHUB_ENV
+          fi
+          if [ -n "${{ inputs.test_groups }}" ];
+          then
+            echo "CIBW_TEST_GROUPS=$space_sep_groups" >> $GITHUB_ENV
           fi
           set +e
           IFS='' read -r -d '' test_command <<"EOF"
@@ -173,28 +185,27 @@ jobs:
             echo "EOF" >> $GITHUB_ENV
           fi
           cat $GITHUB_ENV
-      - uses: actions/setup-python@8d9ed9ac5c53483de85588cdf95a591a75ab9f55  # v5.5.0
+      - uses: actions/setup-python@e797f83bcb11b83ae66e0230d6156d7c80228e7c # v6.0.0
         if: ${{ inputs.env != '' }}
         with:
           python-version: '3.12'
       - id: set-env
         if: ${{ inputs.env != '' }}
         run: |
-          python -m pip install PyYAML
           echo $SET_ENV_SCRIPT | base64 --decode > set_env.py
-          python set_env.py "${{ inputs.env }}"
+          pipx run set_env.py "${{ inputs.env }}"
           rm set_env.py
         shell: sh
         env:
-          SET_ENV_SCRIPT: aW1wb3J0IGpzb24KaW1wb3J0IG9zCmltcG9ydCBzeXMKCmltcG9ydCB5YW1sCgpHSVRIVUJfRU5WID0gb3MuZ2V0ZW52KCJHSVRIVUJfRU5WIikKaWYgR0lUSFVCX0VOViBpcyBOb25lOgogICAgcmFpc2UgVmFsdWVFcnJvcigiR0lUSFVCX0VOViBub3Qgc2V0LiBNdXN0IGJlIHJ1biBpbnNpZGUgR2l0SHViIEFjdGlvbnMuIikKCkRFTElNSVRFUiA9ICJFT0YiCgoKZGVmIHNldF9lbnYoZW52KToKCiAgICBlbnYgPSB5YW1sLmxvYWQoZW52LCBMb2FkZXI9eWFtbC5CYXNlTG9hZGVyKQogICAgcHJpbnQoanNvbi5kdW1wcyhlbnYsIGluZGVudD0yKSkKCiAgICBpZiBub3QgaXNpbnN0YW5jZShlbnYsIGRpY3QpOgogICAgICAgIHRpdGxlID0gImBlbnZgIG11c3QgYmUgbWFwcGluZyIKICAgICAgICBtZXNzYWdlID0gZiJgZW52YCBtdXN0IGJlIG1hcHBpbmcgb2YgZW52IHZhcmlhYmxlcyB0byB2YWx1ZXMsIGdvdCB0eXBlIHt0eXBlKGVudil9IgogICAgICAgIHByaW50KGYiOjplcnJvciB0aXRsZT17dGl0bGV9Ojp7bWVzc2FnZX0iKQogICAgICAgIGV4aXQoMSkKCiAgICBmb3IgaywgdiBpbiBlbnYuaXRlbXMoKToKCiAgICAgICAgaWYgbm90IGlzaW5zdGFuY2Uodiwgc3RyKToKICAgICAgICAgICAgdGl0bGUgPSAiYGVudmAgdmFsdWVzIG11c3QgYmUgc3RyaW5ncyIKICAgICAgICAgICAgbWVzc2FnZSA9IGYiYGVudmAgdmFsdWVzIG11c3QgYmUgc3RyaW5ncywgYnV0IHZhbHVlIG9mIHtrfSBoYXMgdHlwZSB7dHlwZSh2KX0iCiAgICAgICAgICAgIHByaW50KGYiOjplcnJvciB0aXRsZT17dGl0bGV9Ojp7bWVzc2FnZX0iKQogICAgICAgICAgICBleGl0KDEpCgogICAgICAgIHYgPSB2LnNwbGl0KCJcbiIpCgogICAgICAgIHdpdGggb3BlbihHSVRIVUJfRU5WLCAiYSIpIGFzIGY6CiAgICAgICAgICAgIGlmIGxlbih2KSA9PSAxOgogICAgICAgICAgICAgICAgZi53cml0ZShmIntrfT17dlswXX1cbiIpCiAgICAgICAgICAgIGVsc2U6CiAgICAgICAgICAgICAgICBmb3IgbGluZSBpbiB2OgogICAgICAgICAgICAgICAgICAgIGFzc2VydCBsaW5lLnN0cmlwKCkgIT0gREVMSU1JVEVSCiAgICAgICAgICAgICAgICBmLndyaXRlKGYie2t9PDx7REVMSU1JVEVSfVxuIikKICAgICAgICAgICAgICAgIGZvciBsaW5lIGluIHY6CiAgICAgICAgICAgICAgICAgICAgZi53cml0ZShmIntsaW5lfVxuIikKICAgICAgICAgICAgICAgIGYud3JpdGUoZiJ7REVMSU1JVEVSfVxuIikKCiAgICAgICAgcHJpbnQoZiJ7a30gd3JpdHRlbiB0byBHSVRIVUJfRU5WIikKCgppZiBfX25hbWVfXyA9PSAiX19tYWluX18iOgogICAgc2V0X2VudihzeXMuYXJndlsxXSkK
+          SET_ENV_SCRIPT: IyAvLy8gc2NyaXB0CiMgcmVxdWlyZXMtcHl0aG9uID0gIj09My4xMiIKIyBkZXBlbmRlbmNpZXMgPSBbCiMgICAgICJweXlhbWw9PTYuMC4yIiwKIyBdCiMgLy8vCmltcG9ydCBqc29uCmltcG9ydCBvcwppbXBvcnQgc3lzCgppbXBvcnQgeWFtbAoKR0lUSFVCX0VOViA9IG9zLmdldGVudigiR0lUSFVCX0VOViIpCmlmIEdJVEhVQl9FTlYgaXMgTm9uZToKICAgIHJhaXNlIFZhbHVlRXJyb3IoIkdJVEhVQl9FTlYgbm90IHNldC4gTXVzdCBiZSBydW4gaW5zaWRlIEdpdEh1YiBBY3Rpb25zLiIpCgpERUxJTUlURVIgPSAiRU9GIgoKCmRlZiBzZXRfZW52KGVudik6CgogICAgZW52ID0geWFtbC5sb2FkKGVudiwgTG9hZGVyPXlhbWwuQmFzZUxvYWRlcikKICAgIHByaW50KGpzb24uZHVtcHMoZW52LCBpbmRlbnQ9MikpCgogICAgaWYgbm90IGlzaW5zdGFuY2UoZW52LCBkaWN0KToKICAgICAgICB0aXRsZSA9ICJgZW52YCBtdXN0IGJlIG1hcHBpbmciCiAgICAgICAgbWVzc2FnZSA9IGYiYGVudmAgbXVzdCBiZSBtYXBwaW5nIG9mIGVudiB2YXJpYWJsZXMgdG8gdmFsdWVzLCBnb3QgdHlwZSB7dHlwZShlbnYpfSIKICAgICAgICBwcmludChmIjo6ZXJyb3IgdGl0bGU9e3RpdGxlfTo6e21lc3NhZ2V9IikKICAgICAgICBleGl0KDEpCgogICAgZm9yIGssIHYgaW4gZW52Lml0ZW1zKCk6CgogICAgICAgIGlmIG5vdCBpc2luc3RhbmNlKHYsIHN0cik6CiAgICAgICAgICAgIHRpdGxlID0gImBlbnZgIHZhbHVlcyBtdXN0IGJlIHN0cmluZ3MiCiAgICAgICAgICAgIG1lc3NhZ2UgPSBmImBlbnZgIHZhbHVlcyBtdXN0IGJlIHN0cmluZ3MsIGJ1dCB2YWx1ZSBvZiB7a30gaGFzIHR5cGUge3R5cGUodil9IgogICAgICAgICAgICBwcmludChmIjo6ZXJyb3IgdGl0bGU9e3RpdGxlfTo6e21lc3NhZ2V9IikKICAgICAgICAgICAgZXhpdCgxKQoKICAgICAgICB2ID0gdi5zcGxpdCgiXG4iKQoKICAgICAgICB3aXRoIG9wZW4oR0lUSFVCX0VOViwgImEiKSBhcyBmOgogICAgICAgICAgICBpZiBsZW4odikgPT0gMToKICAgICAgICAgICAgICAgIGYud3JpdGUoZiJ7a309e3ZbMF19XG4iKQogICAgICAgICAgICBlbHNlOgogICAgICAgICAgICAgICAgZm9yIGxpbmUgaW4gdjoKICAgICAgICAgICAgICAgICAgICBhc3NlcnQgbGluZS5zdHJpcCgpICE9IERFTElNSVRFUgogICAgICAgICAgICAgICAgZi53cml0ZShmIntrfTw8e0RFTElNSVRFUn1cbiIpCiAgICAgICAgICAgICAgICBmb3IgbGluZSBpbiB2OgogICAgICAgICAgICAgICAgICAgIGYud3JpdGUoZiJ7bGluZX1cbiIpCiAgICAgICAgICAgICAgICBmLndyaXRlKGYie0RFTElNSVRFUn1cbiIpCgogICAgICAgIHByaW50KGYie2t9IHdyaXR0ZW4gdG8gR0lUSFVCX0VOViIpCgoKaWYgX19uYW1lX18gPT0gIl9fbWFpbl9fIjoKICAgIHNldF9lbnYoc3lzLmFyZ3ZbMV0pCg==
       - name: Run cibuildwheel
-        uses: pypa/cibuildwheel@d04cacbc9866d432033b1d09142936e6a0e2121a  # v2.23.2
+        uses: pypa/cibuildwheel@9c00cb4f6b517705a3794b22395aedc36257242c # v3.2.1
         with:
           output-dir: dist
         env:
           CIBW_BUILD: ${{ matrix.CIBW_BUILD }}
           CIBW_ARCHS: ${{ matrix.CIBW_ARCHS }}
-      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02  # v4.6.2
+      - uses: actions/upload-artifact@330a01c490aca151604b8cf639adc76d48f6c5d4 # v5.0.0
         if: |
           needs.targets.outputs.upload_to_pypi == 'true' || inputs.upload_to_anaconda
         with:
@@ -208,38 +219,38 @@ jobs:
     runs-on: ${{ inputs.sdist-runs-on }}
     timeout-minutes: ${{ inputs.timeout-minutes }}
     steps:
-      - uses: actions/setup-python@8d9ed9ac5c53483de85588cdf95a591a75ab9f55  # v5.5.0
+      - uses: actions/setup-python@e797f83bcb11b83ae66e0230d6156d7c80228e7c # v6.0.0
         if: ${{ inputs.env != '' }}
         with:
           python-version: '3.12'
       - id: set-env
         if: ${{ inputs.env != '' }}
         run: |
-          python -m pip install PyYAML
           echo $SET_ENV_SCRIPT | base64 --decode > set_env.py
-          python set_env.py "${{ inputs.env }}"
+          pipx run set_env.py "${{ inputs.env }}"
           rm set_env.py
         shell: sh
         env:
-          SET_ENV_SCRIPT: aW1wb3J0IGpzb24KaW1wb3J0IG9zCmltcG9ydCBzeXMKCmltcG9ydCB5YW1sCgpHSVRIVUJfRU5WID0gb3MuZ2V0ZW52KCJHSVRIVUJfRU5WIikKaWYgR0lUSFVCX0VOViBpcyBOb25lOgogICAgcmFpc2UgVmFsdWVFcnJvcigiR0lUSFVCX0VOViBub3Qgc2V0LiBNdXN0IGJlIHJ1biBpbnNpZGUgR2l0SHViIEFjdGlvbnMuIikKCkRFTElNSVRFUiA9ICJFT0YiCgoKZGVmIHNldF9lbnYoZW52KToKCiAgICBlbnYgPSB5YW1sLmxvYWQoZW52LCBMb2FkZXI9eWFtbC5CYXNlTG9hZGVyKQogICAgcHJpbnQoanNvbi5kdW1wcyhlbnYsIGluZGVudD0yKSkKCiAgICBpZiBub3QgaXNpbnN0YW5jZShlbnYsIGRpY3QpOgogICAgICAgIHRpdGxlID0gImBlbnZgIG11c3QgYmUgbWFwcGluZyIKICAgICAgICBtZXNzYWdlID0gZiJgZW52YCBtdXN0IGJlIG1hcHBpbmcgb2YgZW52IHZhcmlhYmxlcyB0byB2YWx1ZXMsIGdvdCB0eXBlIHt0eXBlKGVudil9IgogICAgICAgIHByaW50KGYiOjplcnJvciB0aXRsZT17dGl0bGV9Ojp7bWVzc2FnZX0iKQogICAgICAgIGV4aXQoMSkKCiAgICBmb3IgaywgdiBpbiBlbnYuaXRlbXMoKToKCiAgICAgICAgaWYgbm90IGlzaW5zdGFuY2Uodiwgc3RyKToKICAgICAgICAgICAgdGl0bGUgPSAiYGVudmAgdmFsdWVzIG11c3QgYmUgc3RyaW5ncyIKICAgICAgICAgICAgbWVzc2FnZSA9IGYiYGVudmAgdmFsdWVzIG11c3QgYmUgc3RyaW5ncywgYnV0IHZhbHVlIG9mIHtrfSBoYXMgdHlwZSB7dHlwZSh2KX0iCiAgICAgICAgICAgIHByaW50KGYiOjplcnJvciB0aXRsZT17dGl0bGV9Ojp7bWVzc2FnZX0iKQogICAgICAgICAgICBleGl0KDEpCgogICAgICAgIHYgPSB2LnNwbGl0KCJcbiIpCgogICAgICAgIHdpdGggb3BlbihHSVRIVUJfRU5WLCAiYSIpIGFzIGY6CiAgICAgICAgICAgIGlmIGxlbih2KSA9PSAxOgogICAgICAgICAgICAgICAgZi53cml0ZShmIntrfT17dlswXX1cbiIpCiAgICAgICAgICAgIGVsc2U6CiAgICAgICAgICAgICAgICBmb3IgbGluZSBpbiB2OgogICAgICAgICAgICAgICAgICAgIGFzc2VydCBsaW5lLnN0cmlwKCkgIT0gREVMSU1JVEVSCiAgICAgICAgICAgICAgICBmLndyaXRlKGYie2t9PDx7REVMSU1JVEVSfVxuIikKICAgICAgICAgICAgICAgIGZvciBsaW5lIGluIHY6CiAgICAgICAgICAgICAgICAgICAgZi53cml0ZShmIntsaW5lfVxuIikKICAgICAgICAgICAgICAgIGYud3JpdGUoZiJ7REVMSU1JVEVSfVxuIikKCiAgICAgICAgcHJpbnQoZiJ7a30gd3JpdHRlbiB0byBHSVRIVUJfRU5WIikKCgppZiBfX25hbWVfXyA9PSAiX19tYWluX18iOgogICAgc2V0X2VudihzeXMuYXJndlsxXSkK
-      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683  # v4.2.2
+          SET_ENV_SCRIPT: IyAvLy8gc2NyaXB0CiMgcmVxdWlyZXMtcHl0aG9uID0gIj09My4xMiIKIyBkZXBlbmRlbmNpZXMgPSBbCiMgICAgICJweXlhbWw9PTYuMC4yIiwKIyBdCiMgLy8vCmltcG9ydCBqc29uCmltcG9ydCBvcwppbXBvcnQgc3lzCgppbXBvcnQgeWFtbAoKR0lUSFVCX0VOViA9IG9zLmdldGVudigiR0lUSFVCX0VOViIpCmlmIEdJVEhVQl9FTlYgaXMgTm9uZToKICAgIHJhaXNlIFZhbHVlRXJyb3IoIkdJVEhVQl9FTlYgbm90IHNldC4gTXVzdCBiZSBydW4gaW5zaWRlIEdpdEh1YiBBY3Rpb25zLiIpCgpERUxJTUlURVIgPSAiRU9GIgoKCmRlZiBzZXRfZW52KGVudik6CgogICAgZW52ID0geWFtbC5sb2FkKGVudiwgTG9hZGVyPXlhbWwuQmFzZUxvYWRlcikKICAgIHByaW50KGpzb24uZHVtcHMoZW52LCBpbmRlbnQ9MikpCgogICAgaWYgbm90IGlzaW5zdGFuY2UoZW52LCBkaWN0KToKICAgICAgICB0aXRsZSA9ICJgZW52YCBtdXN0IGJlIG1hcHBpbmciCiAgICAgICAgbWVzc2FnZSA9IGYiYGVudmAgbXVzdCBiZSBtYXBwaW5nIG9mIGVudiB2YXJpYWJsZXMgdG8gdmFsdWVzLCBnb3QgdHlwZSB7dHlwZShlbnYpfSIKICAgICAgICBwcmludChmIjo6ZXJyb3IgdGl0bGU9e3RpdGxlfTo6e21lc3NhZ2V9IikKICAgICAgICBleGl0KDEpCgogICAgZm9yIGssIHYgaW4gZW52Lml0ZW1zKCk6CgogICAgICAgIGlmIG5vdCBpc2luc3RhbmNlKHYsIHN0cik6CiAgICAgICAgICAgIHRpdGxlID0gImBlbnZgIHZhbHVlcyBtdXN0IGJlIHN0cmluZ3MiCiAgICAgICAgICAgIG1lc3NhZ2UgPSBmImBlbnZgIHZhbHVlcyBtdXN0IGJlIHN0cmluZ3MsIGJ1dCB2YWx1ZSBvZiB7a30gaGFzIHR5cGUge3R5cGUodil9IgogICAgICAgICAgICBwcmludChmIjo6ZXJyb3IgdGl0bGU9e3RpdGxlfTo6e21lc3NhZ2V9IikKICAgICAgICAgICAgZXhpdCgxKQoKICAgICAgICB2ID0gdi5zcGxpdCgiXG4iKQoKICAgICAgICB3aXRoIG9wZW4oR0lUSFVCX0VOViwgImEiKSBhcyBmOgogICAgICAgICAgICBpZiBsZW4odikgPT0gMToKICAgICAgICAgICAgICAgIGYud3JpdGUoZiJ7a309e3ZbMF19XG4iKQogICAgICAgICAgICBlbHNlOgogICAgICAgICAgICAgICAgZm9yIGxpbmUgaW4gdjoKICAgICAgICAgICAgICAgICAgICBhc3NlcnQgbGluZS5zdHJpcCgpICE9IERFTElNSVRFUgogICAgICAgICAgICAgICAgZi53cml0ZShmIntrfTw8e0RFTElNSVRFUn1cbiIpCiAgICAgICAgICAgICAgICBmb3IgbGluZSBpbiB2OgogICAgICAgICAgICAgICAgICAgIGYud3JpdGUoZiJ7bGluZX1cbiIpCiAgICAgICAgICAgICAgICBmLndyaXRlKGYie0RFTElNSVRFUn1cbiIpCgogICAgICAgIHByaW50KGYie2t9IHdyaXR0ZW4gdG8gR0lUSFVCX0VOViIpCgoKaWYgX19uYW1lX18gPT0gIl9fbWFpbl9fIjoKICAgIHNldF9lbnYoc3lzLmFyZ3ZbMV0pCg==
+      - uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
         with:
           fetch-depth: 0
           lfs: true
           submodules: ${{ inputs.submodules }}
       - name: Install dependencies
         if: ${{ inputs.libraries != '' }}
-        uses: ConorMacBride/install-package@3e7ad059e07782ee54fa35f827df52aae0626f30  # v1.1.0
+        uses: ConorMacBride/install-package@3e7ad059e07782ee54fa35f827df52aae0626f30 # v1.1.0
         with:
           apt: ${{ inputs.libraries }}
       - id: build
-        uses: OpenAstronomy/build-python-dist@bbb0e1c5b132893999ea56d77bd4b526e0097c7d  # v1.0.1
+        uses: OpenAstronomy/build-python-dist@9a4b2bd6bda5c48ef3c12b53504ee2263ed032e3 # v1.1.0
         with:
+          test_groups: ${{ inputs.test_groups }}
           test_extras: ${{ inputs.test_extras }}
           test_command: ${{ inputs.test_command }}
           pure_python_wheel: false
           python-version: '3.12'
-      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02  # v4.5
+      - uses: actions/upload-artifact@330a01c490aca151604b8cf639adc76d48f6c5d4 # v5.0.0
         if: |
           needs.targets.outputs.upload_to_pypi == 'true' || inputs.upload_to_anaconda
         with:
@@ -258,19 +269,19 @@ jobs:
       needs.build_wheels.result != 'failure' &&
       needs.build_sdist.result != 'failure'
     steps:
-      - uses: actions/download-artifact@95815c38cf2ff2164869cbab79da8d1f422bc89e  # v4.2.1
+      - uses: actions/download-artifact@018cc2cf5baa6db3ef3c5f8a56943fffe632ef53 # v6.0.0
         with:
           pattern: dist-*
           path: dist
           merge-multiple: true
-      - uses: pypa/gh-action-pypi-publish@76f52bc884231f62b9a034ebfe128415bbaabdfc  # v1.12.4
+      - uses: pypa/gh-action-pypi-publish@ed0c53931b1dc9bd32cbe73a98c7f6766f8a527e # v1.13.0
         name: Upload to PyPI
         if: ${{ needs.targets.outputs.upload_to_pypi == 'true' }}
         with:
           user: __token__
           password: ${{ secrets.pypi_token }}
           repository-url: ${{ inputs.repository_url }}
-      - uses: OpenAstronomy/publish-wheels-anaconda@eae491141709933a7636af70b070e4a92d1a45be  # v1.0.1
+      - uses: OpenAstronomy/publish-wheels-anaconda@eae491141709933a7636af70b070e4a92d1a45be # v1.0.1
         if: ${{ inputs.upload_to_anaconda }}
         with:
           anaconda_user: ${{ inputs.anaconda_user }}

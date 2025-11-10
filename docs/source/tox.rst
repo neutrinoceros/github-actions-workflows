@@ -82,6 +82,9 @@ The name of the GitHub Actions job can be changed with the ``name``
 option as shown above. By default, ``name`` will be the name of the tox
 environment.
 
+If the Python version includes a ``t`` suffix, such as ``py313t``, then
+a free-threaded Python interpreter will be used.
+
 libraries
 ^^^^^^^^^
 
@@ -356,7 +359,7 @@ It can be defined globally:
      runs-on: |
        linux: ubuntu-18.04
        macos: macos-10.15
-       windows: windows-2019
+       windows: windows-2022
 
 .. code:: yaml
 
@@ -377,7 +380,7 @@ be valid YAML.)
    with:
      envs: |
        - windows: py39
-         runs-on: windows-2019
+         runs-on: windows-2022
 
 default_python
 ^^^^^^^^^^^^^^
