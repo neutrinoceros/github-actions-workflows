@@ -219,20 +219,20 @@ jobs:
 
       - run: python -m tox -e ${{ matrix.toxenv }} ${{ matrix.toxargs }} -- ${{ matrix.pytest_flag }} ${{ matrix.posargs }}
 
-      - if: ${{ (success() || failure()) && matrix.artifact-path != '' }}
+      - if: ${{ !cancelled() && matrix.artifact-path != '' }}
         uses: actions/upload-artifact@330a01c490aca151604b8cf639adc76d48f6c5d4 # v5.0.0
         with:
           name: ${{ matrix.artifact-name }}
           path: ${{ matrix.artifact-path }}
 
-      - if: ${{ (success() || failure()) && matrix.pytest-results-summary == 'true' && matrix.pytest == 'true' }}
+      - if: ${{ !cancelled() && matrix.pytest-results-summary == 'true' && matrix.pytest == 'true' }}
         uses: test-summary/action@31493c76ec9e7aa675f1585d3ed6f1da69269a86 # v2.4
         with:
           paths: "**/results.xml"
 
       - name: Upload to Codecov
         # Even if tox fails, upload coverage
-        if: ${{ (success() || failure()) && contains(matrix.coverage, 'codecov') && matrix.pytest == 'true' }}
+        if: ${{ !cancelled() && contains(matrix.coverage, 'codecov') && matrix.pytest == 'true' }}
         uses: codecov/codecov-action@5a1091511ad55cbe89839c7260b706298ca349f7 # v5.5.1
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
