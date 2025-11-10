@@ -161,10 +161,8 @@ jobs:
   test_coverage_github:
     uses: ./.github/workflows/tox.yml
     with:
-      envs: |
-        - linux: coverage-github
-          pytest: true
-          coverage: github
+      pytest: true
+      coverage: github
 
   test_artifact_upload:
     uses: ./.github/workflows/tox.yml
